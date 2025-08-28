@@ -1,0 +1,26 @@
+= form_with(model: time_off_request, html: { class: 'card p-4' }) do |form|
+  - if time_off_request.errors.any?
+    %div{style: "color: red"}
+      %h2= "#{pluralize(time_off_request.errors.count, "error")} prohibited this time_off_request from being saved:"
+      %ul
+        - time_off_request.errors.each do |error|
+          %li= error.full_message
+
+  .mb-3
+    = form.label :time_off_type_id, class: 'form-label'
+    = form.collection_select :time_off_type_id, @time_off_types, :id, :name, { prompt: 'Select type' }, { class: 'form-select' }
+
+  .row.mb-3
+    .col
+      = form.label :start_date, class: 'form-label'
+      = form.date_field :start_date, class: 'form-control'
+    .col
+      = form.label :end_date, class: 'form-label'
+      = form.date_field :end_date, class: 'form-control'
+
+  .mb-3
+    = form.label :reason, class: 'form-label'
+    = form.text_area :reason, class: 'form-control', rows: 3
+
+  .d-grid
+    = form.submit 'Submit Request', class: 'btn btn-primary'

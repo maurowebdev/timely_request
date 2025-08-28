@@ -1,0 +1,8 @@
+.list-group-item.d-flex.justify-content-between.align-items-center
+  %div
+    %strong= time_off_request.time_off_type.name
+    %div
+      #{time_off_request.start_date.strftime('%b %d, %Y')} to #{time_off_request.end_date.strftime('%b %d, %Y')}
+    %small.text-muted= time_off_request.reason
+  %div
+    %span.badge.bg-secondary= time_off_request.request_status.humanize
