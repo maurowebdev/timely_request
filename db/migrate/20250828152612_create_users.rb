@@ -4,7 +4,7 @@ class CreateUsers < ActiveRecord::Migration[8.0]
       t.string :name
       t.integer :role
       t.references :department, null: false, foreign_key: true
-      t.references :manager, null: false, foreign_key: { to_table: :users }
+      t.references :manager, null: true, foreign_key: { to_table: :users }
 
       t.timestamps
     end
