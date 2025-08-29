@@ -1,0 +1,3 @@
+= turbo_stream.remove @time_off_request
+= turbo_stream.update "approved_requests" do
+  = render partial: "request_list", locals: { requests: @approved_requests, show_actions: false }

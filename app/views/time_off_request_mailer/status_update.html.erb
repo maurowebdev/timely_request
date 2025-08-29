@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1>Time Off Request Status Update</h1>
+    <p>
+      Hi <%= @user.name %>,
+    </p>
+    <p>
+      Your time off request for <%= @time_off_request.start_date %> to <%= @time_off_request.end_date %> has been <%= @time_off_request.status %>.
+    </p>
+    <p>
+      Reason: <%= @time_off_request.reason %>
+    </p>
+    <p>
+      Thanks for using our system.
+    </p>
+  </body>
+</html>

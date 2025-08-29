@@ -1,0 +1,7 @@
+.list-group
+  - if requests.any?
+    - requests.each do |request|
+      = render partial: "manager/dashboard/request", locals: { request: request, show_actions: show_actions }
+  - else
+    .list-group-item
+      No requests to display.

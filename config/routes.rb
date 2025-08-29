@@ -4,6 +4,15 @@ Rails.application.routes.draw do
   root "dashboard#index"
   # Web UI
   resources :time_off_requests, only: %i[new create index]
+  namespace :manager do
+    root "dashboard#index"
+    resources :time_off_requests, only: [] do
+      member do
+        patch :approve, to: "dashboard#approve"
+        patch :deny, to: "dashboard#deny"
+      end
+    end
+  end
 
   # API
   namespace :api do

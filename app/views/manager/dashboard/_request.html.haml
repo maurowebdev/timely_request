@@ -1,0 +1,14 @@
+= turbo_frame_tag dom_id(request) do
+  .list-group-item.d-flex.justify-content-between.align-items-center
+    %div
+      %strong= request.user.name
+      %div= request.time_off_type.name
+      %div
+        #{request.start_date.strftime('%b %d, %Y')} to #{request.end_date.strftime('%b %d, %Y')}
+      %small.text-muted= request.reason
+    %div
+      - if show_actions
+        .btn-group
+          = button_to 'Approve', approve_manager_time_off_request_path(request), method: :patch, class: 'btn btn-success btn-sm'
+          = button_to 'Deny', deny_manager_time_off_request_path(request), method: :patch, class: 'btn btn-danger btn-sm'
+      %span.badge.bg-secondary= request.status.humanize

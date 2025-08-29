@@ -1,0 +1,13 @@
+%h1 Manager Dashboard
+
+%h2 Pending Requests
+= turbo_frame_tag "pending_requests" do
+  = render partial: "request_list", locals: { requests: @pending_requests, show_actions: true }
+
+%h2 Approved Requests
+= turbo_frame_tag "approved_requests" do
+  = render partial: "request_list", locals: { requests: @approved_requests, show_actions: false }
+
+%h2 Rejected Requests
+= turbo_frame_tag "rejected_requests" do
+  = render partial: "request_list", locals: { requests: @rejected_requests, show_actions: false }
