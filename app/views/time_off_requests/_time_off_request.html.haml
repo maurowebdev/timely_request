@@ -5,4 +5,4 @@
       #{time_off_request.start_date.strftime('%b %d, %Y')} to #{time_off_request.end_date.strftime('%b %d, %Y')}
     %small.text-muted= time_off_request.reason
   %div
-    %span.badge.bg-secondary= time_off_request.request_status.humanize
+    %span.badge.bg-secondary= time_off_request.status.humanize

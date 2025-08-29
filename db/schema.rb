@@ -26,7 +26,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_28_153303) do
     t.date "start_date"
     t.date "end_date"
     t.text "reason"
-    t.integer "status"
+    t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["time_off_type_id"], name: "index_time_off_requests_on_time_off_type_id"
@@ -43,7 +43,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_28_153303) do
     t.string "name"
     t.integer "role"
     t.bigint "department_id", null: false
-    t.bigint "manager_id", null: true
+    t.bigint "manager_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "email", default: "", null: false
