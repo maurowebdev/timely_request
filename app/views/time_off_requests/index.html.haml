@@ -1,3 +1,2 @@
-= turbo_frame_tag "time_off_requests_list" do
-  .list-group
-    = render @time_off_requests
+= turbo_frame_tag "time_off_requests_list", class: "list-group" do
+  = render @time_off_requests

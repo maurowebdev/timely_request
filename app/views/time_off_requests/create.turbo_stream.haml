@@ -1,2 +1,6 @@
-= turbo_stream.prepend "time_off_requests_list" do
-  = render @time_off_request
+= turbo_stream.prepend "time_off_requests_list", @time_off_request
+
+= turbo_stream.replace "new_time_off_request" do
+  = turbo_frame_tag "new_time_off_request" do
+    .d-grid.gap-2.mb-4
+      = link_to "Request Time Off", new_time_off_request_path, class: "btn btn-primary"

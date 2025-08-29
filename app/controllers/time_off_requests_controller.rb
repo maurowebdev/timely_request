@@ -18,6 +18,11 @@ class TimeOffRequestsController < ApplicationController
         format.turbo_stream
         format.html { redirect_to root_path, notice: 'Time off request was successfully created.' }
       else
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace("new_time_off_request_form",
+            partial: "time_off_requests/form",
+            locals: { time_off_request: @time_off_request, time_off_types: @time_off_types })
+        end
         format.html { render :new, status: :unprocessable_entity }
       end
     end
