@@ -10,4 +10,26 @@ class User < ApplicationRecord
   has_many :time_off_requests
 
   enum :role, { employee: 0, manager: 1, admin: 2 }
+
+  validate :cannot_be_own_manager
+  validate :no_circular_references
+
+  private
+
+  def cannot_be_own_manager
+    errors.add(:manager, "can't be yourself") if manager == self
+  end
+
+  def no_circular_references
+    return unless manager
+
+    current_manager = manager
+    while current_manager
+      if current_manager == self
+        errors.add(:manager_id, "creates a circular reference")
+        break
+      end
+      current_manager = current_manager.manager
+    end
+  end
 end

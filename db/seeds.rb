@@ -8,6 +8,7 @@ TimeOffRequest.destroy_all
 User.destroy_all
 Department.destroy_all
 TimeOffType.destroy_all
+Approval.destroy_all
 
 # --- Create Departments ---
 puts "Creating Departments..."
@@ -35,7 +36,7 @@ admin_user = User.create!(
   manager: nil # Admin has no manager
 )
 
-# Manager who reports to the Admin
+# Managers who reports to the Admin
 manager_user = User.create!(
   name: 'Manager User',
   email: 'manager@example.com',
@@ -46,8 +47,18 @@ manager_user = User.create!(
   manager: admin_user
 )
 
+manager_user2 = User.create!(
+  name: 'Manager User 2',
+  email: 'manager2@example.com',
+  password: 'password123',
+  password_confirmation: 'password123',
+  role: :manager,
+  department: sales,
+  manager: admin_user
+)
+
 # Employee 1 who reports to the Manager
-User.create!(
+employee = User.create!(
   name: 'Mauricio Barros',
   email: 'mauricio.barros@example.com',
   password: 'password123',
@@ -57,7 +68,7 @@ User.create!(
   manager: manager_user
 )
 
-# Employee 2 who reports to the Manager
+# Employee 2 who reports to the Admin
 employee2 = User.create!(
   name: 'Jane Smith',
   email: 'jane.smith@example.com',
@@ -68,14 +79,70 @@ employee2 = User.create!(
   manager: admin_user # Let's have this one report to the admin for variety
 )
 
-# --- Create a sample Time Off Request ---
-puts "Creating a sample Time Off Request..."
+# Employee 3 who reports to the Manager 2
+employee3 = User.create!(
+  name: 'John Doe',
+  email: 'john.doe@example.com',
+  password: 'password123',
+  password_confirmation: 'password123',
+  role: :employee,
+  department: sales,
+  manager: manager_user2
+)
+
+# --- Create some sample Time Off Requests ---
+puts "Creating some sample Time Off Requests..."
 TimeOffRequest.create!(
   user: employee2,
   time_off_type: vacation,
   start_date: Date.today + 10.days,
   end_date: Date.today + 15.days,
   reason: 'Family vacation to Hawaii.',
+  status: :pending
+)
+
+TimeOffRequest.create!(
+  user: employee3,
+  time_off_type: sick_leave,
+  start_date: Date.today + 20.days,
+  end_date: Date.today + 25.days,
+  reason: 'Sick leave due to flu.',
+  status: :pending
+)
+
+TimeOffRequest.create!(
+  user: employee,
+  time_off_type: personal_day,
+  start_date: Date.today + 30.days,
+  end_date: Date.today + 35.days,
+  reason: 'Personal day off.',
+  status: :pending
+)
+
+TimeOffRequest.create!(
+  user: employee3,
+  time_off_type: vacation,
+  start_date: Date.today + 40.days,
+  end_date: Date.today + 45.days,
+  reason: 'Vacation to Europe.',
+  status: :pending
+)
+
+TimeOffRequest.create!(
+  user: employee,
+  time_off_type: personal_day,
+  start_date: Date.today + 50.days,
+  end_date: Date.today + 55.days,
+  reason: 'Personal day off.',
+  status: :pending
+)
+
+TimeOffRequest.create!(
+  user: employee2,
+  time_off_type: sick_leave,
+  start_date: Date.today + 60.days,
+  end_date: Date.today + 65.days,
+  reason: 'Surgery',
   status: :pending
 )
 
