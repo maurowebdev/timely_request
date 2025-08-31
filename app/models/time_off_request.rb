@@ -8,6 +8,7 @@ class TimeOffRequest < ApplicationRecord
   validates :start_date, :end_date, :reason, presence: true
   validate :end_date_after_start_date
   validate :start_date_not_in_past
+  validate :no_overlapping_requests
 
   private
 
@@ -21,5 +22,13 @@ class TimeOffRequest < ApplicationRecord
     return unless start_date && start_date < Date.today
 
     errors.add(:start_date, "cannot be in the past")
+  end
+
+  def no_overlapping_requests
+    return unless user && start_date && end_date
+
+    overlapping_requests = user.time_off_requests.where.not(id: id).where("start_date <= ? AND end_date >= ?", end_date, start_date)
+
+    errors.add(:base, "#{overlapping_requests.count} overlapping requests found: #{overlapping_requests.map { |request| [ request.id, request.start_date, request.end_date ] }.join(', ')}") if overlapping_requests.any?
   end
 end
