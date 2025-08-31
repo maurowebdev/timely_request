@@ -10,24 +10,42 @@ class Manager::DashboardController < ApplicationController
   end
 
   def approve
-    authorize @time_off_request
-    @time_off_request.approved!
-    SendTimeOffRequestStatusUpdateEmailJob.perform_later(@time_off_request)
-    @approved_requests = TimeOffRequest.where(user: current_user.managed_employees, status: :approved).order(created_at: :desc)
+    authorize @time_off_request, :approve?
 
-    respond_to do |format|
-      format.turbo_stream
+    result = TimeOffRequestDecisionService.new(
+      time_off_request: @time_off_request,
+      approver: current_user,
+      decision: 'approve',
+      comments: params[:comments]
+    ).call
+
+    if result[:success]
+      @approved_requests = TimeOffRequest.where(user: current_user.managed_employees, status: :approved).order(created_at: :desc)
+      respond_to do |format|
+        format.turbo_stream
+      end
+    else
+      redirect_to manager_root_path, alert: result[:error]
     end
   end
 
   def deny
-    authorize @time_off_request
-    @time_off_request.rejected!
-    SendTimeOffRequestStatusUpdateEmailJob.perform_later(@time_off_request)
-    @rejected_requests = TimeOffRequest.where(user: current_user.managed_employees, status: :rejected).order(created_at: :desc)
+    authorize @time_off_request, :deny?
 
-    respond_to do |format|
-      format.turbo_stream
+    result = TimeOffRequestDecisionService.new(
+      time_off_request: @time_off_request,
+      approver: current_user,
+      decision: 'deny',
+      comments: params[:comments]
+    ).call
+
+    if result[:success]
+      @rejected_requests = TimeOffRequest.where(user: current_user.managed_employees, status: :rejected).order(created_at: :desc)
+      respond_to do |format|
+        format.turbo_stream
+      end
+    else
+      redirect_to manager_root_path, alert: result[:error]
     end
   end
 

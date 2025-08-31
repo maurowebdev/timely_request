@@ -1,6 +1,7 @@
 class TimeOffRequest < ApplicationRecord
   belongs_to :user
   belongs_to :time_off_type
+  has_one :approval, dependent: :destroy
 
   enum :status, { pending: 0, approved: 1, rejected: 2 }
 

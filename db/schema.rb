@@ -10,9 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_28_153303) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_31_150344) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "approvals", force: :cascade do |t|
+    t.bigint "time_off_request_id", null: false
+    t.bigint "approver_id", null: false
+    t.text "comments"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["approver_id"], name: "index_approvals_on_approver_id"
+    t.index ["time_off_request_id"], name: "index_approvals_on_time_off_request_id", unique: true
+  end
 
   create_table "departments", force: :cascade do |t|
     t.string "name"
@@ -57,6 +67,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_28_153303) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "approvals", "time_off_requests"
+  add_foreign_key "approvals", "users", column: "approver_id"
   add_foreign_key "time_off_requests", "time_off_types"
   add_foreign_key "time_off_requests", "users"
   add_foreign_key "users", "departments"

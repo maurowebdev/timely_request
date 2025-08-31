@@ -32,17 +32,37 @@ class Api::V1::TimeOffRequestsController < Api::V1::BaseController
   end
 
   def approve
-    authorize @time_off_request
-    @time_off_request.approved!
-    SendTimeOffRequestStatusUpdateEmailJob.perform_later(@time_off_request)
-    render json: TimeOffRequestSerializer.new(@time_off_request).serializable_hash
+    authorize @time_off_request, :approve?
+
+    result = TimeOffRequestDecisionService.new(
+      time_off_request: @time_off_request,
+      approver: current_user,
+      decision: 'approve',
+      comments: params[:comments]
+    ).call
+
+    if result[:success]
+      render json: TimeOffRequestSerializer.new(result[:time_off_request]).serializable_hash
+    else
+      render json: { errors: [result[:error]] }, status: :unprocessable_entity
+    end
   end
 
   def deny
-    authorize @time_off_request
-    @time_off_request.rejected!
-    SendTimeOffRequestStatusUpdateEmailJob.perform_later(@time_off_request)
-    render json: TimeOffRequestSerializer.new(@time_off_request).serializable_hash
+    authorize @time_off_request, :deny?
+
+    result = TimeOffRequestDecisionService.new(
+      time_off_request: @time_off_request,
+      approver: current_user,
+      decision: 'deny',
+      comments: params[:comments]
+    ).call
+
+    if result[:success]
+      render json: TimeOffRequestSerializer.new(result[:time_off_request]).serializable_hash
+    else
+      render json: { errors: [result[:error]] }, status: :unprocessable_entity
+    end
   end
 
   private
