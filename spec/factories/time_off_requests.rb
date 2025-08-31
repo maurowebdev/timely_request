@@ -1,10 +1,10 @@
 FactoryBot.define do
   factory :time_off_request do
-    user { nil }
-    time_off_type { nil }
-    start_date { "2025-08-28" }
-    end_date { "2025-08-28" }
-    reason { "MyText" }
-    status { 1 }
+    association :user
+    association :time_off_type
+    start_date { Date.today + 7.days }
+    end_date { Date.today + 10.days }
+    reason { Faker::Lorem.sentence }
+    status { :pending }
   end
 end
