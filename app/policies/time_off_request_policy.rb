@@ -12,11 +12,18 @@ class TimeOffRequestPolicy < ApplicationPolicy
   end
 
   def approve?
-    user.admin? || user.managed_employees.include?(record.user)
+    return true if user.admin?
+
+    # Regular managers can only approve their direct reports' requests
+    user.managed_employees.include?(record.user)
   end
 
   def deny?
     approve?
+  end
+
+  def manage?
+    user.admin? || user.manager?
   end
 
   class Scope < Scope

@@ -1,8 +1,29 @@
 class Api::V1::TimeOffRequestsController < Api::V1::BaseController
   before_action :authenticate_user!
-  before_action :set_time_off_request, except: %i[index create]
+  before_action :set_time_off_request, except: %i[index create manager_dashboard]
   def index
-    @time_off_requests = current_user.time_off_requests.order(created_at: :desc)
+    if current_user.manager? || current_user.admin?
+      # For managers and admins, show requests from their managed employees
+      @time_off_requests = TimeOffRequest.where(user: current_user.managed_employees).order(created_at: :desc)
+    else
+      # For regular users, show only their own requests
+      @time_off_requests = current_user.time_off_requests.order(created_at: :desc)
+    end
+    render json: TimeOffRequestSerializer.new(@time_off_requests).serializable_hash
+  end
+
+  def manager_dashboard
+    authorize :time_off_request, :manage?
+
+    if current_user.admin?
+      managed_users = current_user.managed_employees
+      second_level_users = User.where(manager: managed_users)
+      all_user_ids = (managed_users.pluck(:id) + second_level_users.pluck(:id)).uniq
+      @time_off_requests = TimeOffRequest.where(user_id: all_user_ids).order(created_at: :desc)
+    else
+      @time_off_requests = TimeOffRequest.where(user: current_user.managed_employees).order(created_at: :desc)
+    end
+
     render json: TimeOffRequestSerializer.new(@time_off_requests).serializable_hash
   end
 

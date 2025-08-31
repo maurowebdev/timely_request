@@ -1,2 +1,8 @@
-= turbo_frame_tag "time_off_requests_list", class: "list-group" do
-  = render @time_off_requests
+%div{"data-controller" => "time-off-request", "data-time-off-request-index-url-value" => api_v1_time_off_requests_path}
+  = turbo_frame_tag "time_off_requests_list" do
+    .list-group{"data-time-off-request-target" => "list"}
+      = render @time_off_requests
+
+  = turbo_frame_tag "new_time_off_request", "data-time-off-request-target" => "newButton" do
+    .d-grid.gap-2.mb-4
+      = link_to "Request Time Off", new_time_off_request_path, class: "btn btn-primary"

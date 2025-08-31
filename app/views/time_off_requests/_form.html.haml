@@ -1,10 +1,5 @@
-= form_with(model: time_off_request, id: 'new_time_off_request_form', html: { class: 'card p-4' }) do |form|
-  - if time_off_request.errors.any?
-    %div{style: "color: red"}
-      %h2= "#{pluralize(time_off_request.errors.count, "error")} prohibited this time_off_request from being saved:"
-      %ul
-        - time_off_request.errors.each do |error|
-          %li= error.full_message
+= form_with(model: time_off_request, id: 'new_time_off_request_form', html: { class: 'card p-4', data: { controller: 'time-off-request', 'time-off-request-target': 'form', action: 'submit->time-off-request#submitForm', 'time-off-request-create-url-value': api_v1_time_off_requests_path, 'time-off-request-index-url-value': api_v1_time_off_requests_path } }) do |form|
+  %div{style: "color: red", class: "d-none", data: { 'time-off-request-target': 'errorContainer' }}
 
   .mb-3
     = form.label :time_off_type_id, class: 'form-label'
@@ -23,4 +18,4 @@
     = form.text_area :reason, class: 'form-control', rows: 3
 
   .d-grid
-    = form.submit 'Submit Request', class: 'btn btn-primary'
+    = form.submit 'Submit Request', class: 'btn btn-primary', data: { 'time-off-request-target': 'submitButton' }

@@ -2,22 +2,18 @@ Rails.application.routes.draw do
   devise_for :users
 
   root "dashboard#index"
-  # Web UI
-  resources :time_off_requests, only: %i[new create index]
+  resources :time_off_requests, only: %i[new index]
   namespace :manager do
     root "dashboard#index"
-    resources :time_off_requests, only: [] do
-      member do
-        patch :approve, to: "dashboard#approve"
-        patch :deny, to: "dashboard#deny"
-      end
-    end
   end
 
   # API
   namespace :api do
     namespace :v1 do
       resources :time_off_requests, only: %i[index show create update] do
+        collection do
+          get :manager_dashboard
+        end
         member do
           patch :approve
           patch :deny
