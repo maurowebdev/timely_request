@@ -2,8 +2,8 @@ FactoryBot.define do
   factory :time_off_request do
     association :user
     association :time_off_type
-    start_date { Date.today + 7.days }
-    end_date { Date.today + 10.days }
+    sequence(:start_date) { |n| Date.today + (n * 7).days }
+    sequence(:end_date) { |n| Date.today + (n * 7 + 3).days }
     reason { Faker::Lorem.sentence }
     status { :pending }
   end
