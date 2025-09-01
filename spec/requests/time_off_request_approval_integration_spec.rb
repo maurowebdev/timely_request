@@ -137,4 +137,47 @@ RSpec.describe 'TimeOffRequest Approval Integration', type: :request do
       end
     end
   end
+
+  describe 'duration-based approval policy' do
+    let(:short_request) do
+      # 10-day request, which a manager can approve
+      create(:time_off_request, :vacation, user: employee, status: :pending, start_date: Date.today + 15.days, end_date: Date.today + 24.days)
+    end
+
+    let(:long_request) do
+      # 11-day request, which requires an admin
+      create(:time_off_request, :vacation, user: employee, status: :pending, start_date: Date.today + 30.days, end_date: Date.today + 40.days)
+    end
+
+    before do
+      # Grant enough PTO to cover the long request
+      grant_pto(employee, 20)
+    end
+
+    context 'as a manager' do
+      before { sign_in(manager, scope: :user) }
+
+      it 'can approve a request within the duration limit (<= 10 days)' do
+        patch "/api/v1/time_off_requests/#{short_request.id}/approve"
+        expect(response).to have_http_status(:ok)
+        expect(short_request.reload.status).to eq('approved')
+      end
+
+      it 'is forbidden from approving a request beyond the duration limit (> 10 days)' do
+        patch "/api/v1/time_off_requests/#{long_request.id}/approve"
+        expect(response).to have_http_status(:forbidden)
+        expect(long_request.reload.status).to eq('pending')
+      end
+    end
+
+    context 'as an admin' do
+      before { sign_in(admin, scope: :user) }
+
+      it 'can approve a long-duration request that a manager cannot' do
+        patch "/api/v1/time_off_requests/#{long_request.id}/approve"
+        expect(response).to have_http_status(:ok)
+        expect(long_request.reload.status).to eq('approved')
+      end
+    end
+  end
 end

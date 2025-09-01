@@ -13,6 +13,8 @@ class TimeOffRequest < ApplicationRecord
   validate :advance_notice_requirement
   validate :max_consecutive_days_limit
 
+  MAX_MANAGER_APPROVAL_LIMIT = 10
+
   def duration_in_days
     return 0 if start_date.nil? || end_date.nil?
 

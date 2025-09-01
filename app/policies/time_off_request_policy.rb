@@ -15,7 +15,10 @@ class TimeOffRequestPolicy < ApplicationPolicy
     return true if user.admin?
 
     # Regular managers can only approve their direct reports' requests
-    user.managed_employees.include?(record.user)
+    is_respective_manager = user.managed_employees.include?(record.user)
+    is_within_manager_limit = record.duration_in_days <= TimeOffRequest::MAX_MANAGER_APPROVAL_LIMIT
+
+    is_respective_manager && is_within_manager_limit
   end
 
   def deny?
