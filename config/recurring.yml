@@ -13,3 +13,9 @@ production:
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12
+
+  monthly_pto_accrual:
+    class: "MonthlyPtoAccrualJob"
+    cron: "0 5 1 * *" # Runs at 5:00 on day 1 of every month
+    schedule: every month at day 1
+    description: "Accrue PTO for employees"

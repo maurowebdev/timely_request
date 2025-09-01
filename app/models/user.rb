@@ -8,11 +8,16 @@ class User < ApplicationRecord
 
   has_many :managed_employees, class_name: "User", foreign_key: "manager_id", dependent: :nullify # A manager can have many employees
   has_many :time_off_requests
+  has_many :time_off_ledger_entries
 
   enum :role, { employee: 0, manager: 1, admin: 2 }
 
   validate :cannot_be_own_manager
   validate :no_circular_references
+
+  def pto_balance
+    time_off_ledger_entries.sum(:amount).ceil
+  end
 
   private
 

@@ -9,6 +9,13 @@ class TimeOffRequest < ApplicationRecord
   validate :end_date_after_start_date
   validate :start_date_not_in_past
   validate :no_overlapping_requests
+  validate :sufficient_pto_balance, on: :create
+
+  def duration_in_days
+    return 0 if start_date.nil? || end_date.nil?
+
+    (end_date - start_date).to_i + 1
+  end
 
   private
 
@@ -30,5 +37,14 @@ class TimeOffRequest < ApplicationRecord
     overlapping_requests = user.time_off_requests.where.not(id: id).where("start_date <= ? AND end_date >= ?", end_date, start_date)
 
     errors.add(:base, "#{overlapping_requests.count} overlapping requests found: #{overlapping_requests.map { |request| [ request.id, request.start_date, request.end_date ] }.join(', ')}") if overlapping_requests.any?
+  end
+
+  def sufficient_pto_balance
+    return if time_off_type&.name != 'Vacation'
+    return unless user && start_date && end_date
+
+    if user.pto_balance < duration_in_days
+      errors.add(:base, "You do not have enough PTO for this request. Current balance: #{user.pto_balance} days.")
+    end
   end
 end

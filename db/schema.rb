@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_31_150344) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_31_213011) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -28,6 +28,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_31_150344) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "time_off_ledger_entries", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.integer "entry_type", null: false
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.date "effective_date"
+    t.text "notes"
+    t.string "source_type", null: false
+    t.bigint "source_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["entry_type"], name: "index_time_off_ledger_entries_on_entry_type"
+    t.index ["source_type", "source_id"], name: "index_time_off_ledger_entries_on_source"
+    t.index ["user_id"], name: "index_time_off_ledger_entries_on_user_id"
   end
 
   create_table "time_off_requests", force: :cascade do |t|
@@ -69,6 +84,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_31_150344) do
 
   add_foreign_key "approvals", "time_off_requests"
   add_foreign_key "approvals", "users", column: "approver_id"
+  add_foreign_key "time_off_ledger_entries", "users"
   add_foreign_key "time_off_requests", "time_off_types"
   add_foreign_key "time_off_requests", "users"
   add_foreign_key "users", "departments"

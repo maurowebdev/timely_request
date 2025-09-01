@@ -90,6 +90,7 @@ class TimeOffRequestDecisionService
   def update_request_status!
     new_status = approved_decision? ? :approved : :rejected
     time_off_request.update!(status: new_status)
+    create_time_off_ledger_entry! if new_status == :approved
   end
 
   def create_approval_record!
@@ -105,5 +106,20 @@ class TimeOffRequestDecisionService
 
   def approved_decision?
     %w[approve approved].include?(decision)
+  end
+
+  private
+
+  def create_time_off_ledger_entry!
+    return unless time_off_request.time_off_type.name.downcase == 'vacation'
+
+    TimeOffLedgerEntry.create!(
+      user: time_off_request.user,
+      entry_type: :usage,
+      amount: -time_off_request.duration_in_days,
+      effective_date: time_off_request.start_date,
+      source: time_off_request,
+      notes: "Time off request #{time_off_request.id} #{time_off_request.status}"
+    )
   end
 end
