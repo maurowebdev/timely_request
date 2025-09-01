@@ -1,6 +1,6 @@
 class TimeOffRequestPolicy < ApplicationPolicy
   def show?
-    user.admin? || record.user == user
+    user.admin? || record.user == user || user.managed_employees.include?(record.user)
   end
 
   def create?

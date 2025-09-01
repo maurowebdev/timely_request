@@ -154,8 +154,12 @@ RSpec.describe TimeOffRequestDecisionService, type: :service do
 
     context 'with different decision formats' do
       it 'accepts various approval formats' do
-        %w[approve approved].each do |decision|
-          request = create(:time_off_request, user: employee, status: :pending)
+        %w[approve approved].each_with_index do |decision, index|
+          request = create(:time_off_request,
+                          user: employee,
+                          status: :pending,
+                          start_date: Date.today + (index * 30).days,
+                          end_date: Date.today + (index * 30 + 3).days)
           service = described_class.new(
             time_off_request: request,
             approver: manager,
@@ -169,8 +173,12 @@ RSpec.describe TimeOffRequestDecisionService, type: :service do
       end
 
       it 'accepts various denial formats' do
-        %w[deny denied reject rejected].each do |decision|
-          request = create(:time_off_request, user: employee, status: :pending)
+        %w[deny denied reject rejected].each_with_index do |decision, index|
+          request = create(:time_off_request,
+                          user: employee,
+                          status: :pending,
+                          start_date: Date.today + (index * 30 + 10).days,
+                          end_date: Date.today + (index * 30 + 13).days)
           service = described_class.new(
             time_off_request: request,
             approver: manager,

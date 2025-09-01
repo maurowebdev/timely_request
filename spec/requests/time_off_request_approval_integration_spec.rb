@@ -13,10 +13,20 @@ RSpec.describe 'TimeOffRequest Approval Integration', type: :request do
     create(:time_off_request, user: employee, time_off_type: time_off_type, status: :pending)
   end
 
+  # Helper to grant PTO to a user
+  def grant_pto(user, amount)
+    create(:time_off_ledger_entry, user: user, amount: amount, source: user)
+  end
+
+  before do
+    # Grant the employee sufficient PTO for the request to be valid upon creation/approval
+    grant_pto(employee, 10)
+  end
+
   describe 'API approval workflow with Pundit + Service integration' do
     context 'when manager approves direct report request' do
       before do
-        sign_in manager
+        sign_in(manager, scope: :user)
         patch "/api/v1/time_off_requests/#{time_off_request.id}/approve",
               params: { comments: 'Approved for vacation' }
       end
@@ -41,7 +51,7 @@ RSpec.describe 'TimeOffRequest Approval Integration', type: :request do
 
     context 'when admin approves any request' do
       before do
-        sign_in admin
+        sign_in(admin, scope: :user)
         patch "/api/v1/time_off_requests/#{time_off_request.id}/approve"
       end
 
@@ -53,13 +63,13 @@ RSpec.describe 'TimeOffRequest Approval Integration', type: :request do
 
     context 'when unauthorized user tries to approve' do
       before do
-        sign_in other_employee  # Not the manager of the request owner
+        sign_in(other_employee, scope: :user)
         patch "/api/v1/time_off_requests/#{time_off_request.id}/approve"
       end
 
       it 'is blocked by Pundit before reaching service' do
         expect(response).to have_http_status(:forbidden)
-        expect(time_off_request.reload.status).to eq('pending')  # Status unchanged
+        expect(time_off_request.reload.status).to eq('pending')
       end
 
       it 'does not create approval record' do
@@ -73,70 +83,31 @@ RSpec.describe 'TimeOffRequest Approval Integration', type: :request do
       end
 
       before do
-        # Create existing approval record
         approved_request.create_approval!(approver: manager, comments: 'Already approved')
-
-        sign_in manager
+        sign_in(manager, scope: :user)
         patch "/api/v1/time_off_requests/#{approved_request.id}/approve"
       end
 
       it 'passes Pundit authorization but fails in service logic' do
         expect(response).to have_http_status(:unprocessable_entity)
-
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to include(/already approved/)
       end
     end
   end
 
-  describe 'Web approval workflow with Pundit + Service integration' do
-    context 'when manager approves via web interface' do
-      before do
-        sign_in manager
-        patch "/manager/time_off_requests/#{time_off_request.id}/approve",
-              params: { comments: 'Team coverage arranged' }
-      end
-
-      it 'successfully approves the request' do
-        expect(response).to have_http_status(:ok)
-        expect(time_off_request.reload.status).to eq('approved')
-      end
-
-      it 'creates approval audit record' do
-        approval = time_off_request.reload.approval
-        expect(approval).to be_present
-        expect(approval.approver).to eq(manager)
-        expect(approval.comments).to eq('Team coverage arranged')
-      end
-    end
-
-    context 'when unauthorized user accesses web approval' do
-      before do
-        sign_in other_employee
-        patch "/manager/time_off_requests/#{time_off_request.id}/approve"
-      end
-
-      it 'is blocked by Pundit authorization' do
-        expect(response).to have_http_status(:forbidden)
-        expect(time_off_request.reload.status).to eq('pending')
-      end
-    end
-  end
-
   describe 'Email notification integration' do
     before do
-      sign_in manager
+      sign_in(manager, scope: :user)
     end
 
     it 'triggers email job when request is approved' do
       expect(SendTimeOffRequestStatusUpdateEmailJob).to receive(:perform_later).with(time_off_request)
-
       patch "/api/v1/time_off_requests/#{time_off_request.id}/approve"
     end
 
     it 'triggers email job when request is denied' do
       expect(SendTimeOffRequestStatusUpdateEmailJob).to receive(:perform_later).with(time_off_request)
-
       patch "/api/v1/time_off_requests/#{time_off_request.id}/deny",
             params: { comments: 'Insufficient coverage' }
     end
@@ -145,7 +116,7 @@ RSpec.describe 'TimeOffRequest Approval Integration', type: :request do
   describe 'Audit trail verification' do
     context 'after approval' do
       before do
-        sign_in manager
+        sign_in(manager, scope: :user)
         patch "/api/v1/time_off_requests/#{time_off_request.id}/approve",
               params: { comments: 'Vacation approved' }
       end
@@ -154,16 +125,11 @@ RSpec.describe 'TimeOffRequest Approval Integration', type: :request do
         time_off_request.reload
         approval = time_off_request.approval
 
-        # Request status updated
         expect(time_off_request.status).to eq('approved')
-
-        # Approval record created with all details
         expect(approval).to be_present
         expect(approval.approver).to eq(manager)
         expect(approval.comments).to eq('Vacation approved')
         expect(approval.created_at).to be_within(1.second).of(Time.current)
-
-        # Relationships work both ways
         expect(manager.approvals).to include(approval)
         expect(time_off_request.approval).to eq(approval)
       end

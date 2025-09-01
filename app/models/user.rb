@@ -9,6 +9,7 @@ class User < ApplicationRecord
   has_many :managed_employees, class_name: "User", foreign_key: "manager_id", dependent: :nullify # A manager can have many employees
   has_many :time_off_requests
   has_many :time_off_ledger_entries
+  has_many :approvals, foreign_key: "approver_id"
 
   enum :role, { employee: 0, manager: 1, admin: 2 }
 
