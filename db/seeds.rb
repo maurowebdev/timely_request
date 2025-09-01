@@ -9,6 +9,7 @@ User.destroy_all
 Department.destroy_all
 TimeOffType.destroy_all
 Approval.destroy_all
+TimeOffLedgerEntry.destroy_all
 
 # --- Create Departments ---
 puts "Creating Departments..."
@@ -90,13 +91,26 @@ employee3 = User.create!(
   manager: manager_user2
 )
 
+# --- Create some accrual entries ---
+puts "Creating some accrual entries..."
+User.all.each do |user|
+  TimeOffLedgerEntry.create!(
+    user: user,
+    entry_type: :accrual,
+    effective_date: Date.yesterday,
+    amount: 15,
+    source: admin_user
+  )
+end
+
 # --- Create some sample Time Off Requests ---
 puts "Creating some sample Time Off Requests..."
+
 TimeOffRequest.create!(
   user: employee2,
   time_off_type: vacation,
-  start_date: Date.today + 10.days,
-  end_date: Date.today + 15.days,
+  start_date: Date.today + 14.days,
+  end_date: Date.today + 17.days,
   reason: 'Family vacation to Hawaii.',
   status: :pending
 )
@@ -114,11 +128,10 @@ TimeOffRequest.create!(
   user: employee,
   time_off_type: personal_day,
   start_date: Date.today + 30.days,
-  end_date: Date.today + 35.days,
+  end_date: Date.today + 34.days,
   reason: 'Personal day off.',
   status: :pending
 )
-
 TimeOffRequest.create!(
   user: employee3,
   time_off_type: vacation,
@@ -132,7 +145,7 @@ TimeOffRequest.create!(
   user: employee,
   time_off_type: personal_day,
   start_date: Date.today + 50.days,
-  end_date: Date.today + 55.days,
+  end_date: Date.today + 53.days,
   reason: 'Personal day off.',
   status: :pending
 )
@@ -150,4 +163,5 @@ puts "Seeding finished!"
 puts "Created #{Department.count} departments."
 puts "Created #{TimeOffType.count} time off types."
 puts "Created #{User.count} users."
+puts "Created #{TimeOffLedgerEntry.count} time off ledger entries."
 puts "Created #{TimeOffRequest.count} time off requests."
