@@ -1,4 +1,4 @@
-= form_with(model: time_off_request, id: 'new_time_off_request_form', html: { class: 'card p-4', data: { controller: 'time-off-request', 'time-off-request-target': 'form', action: 'submit->time-off-request#submitForm', 'time-off-request-create-url-value': api_v1_time_off_requests_path, 'time-off-request-index-url-value': api_v1_time_off_requests_path } }) do |form|
+= form_with(model: time_off_request, id: 'new_time_off_request_form', html: { class: 'card p-4', data: { 'time-off-request-target': 'form', action: 'submit->time-off-request#submitForm' } }) do |form|
   %div{style: "color: red", class: "d-none", data: { 'time-off-request-target': 'errorContainer' }}
 
   .mb-3
@@ -17,5 +17,7 @@
     = form.label :reason, class: 'form-label'
     = form.text_area :reason, class: 'form-control', rows: 3
 
-  .d-grid
-    = form.submit 'Submit Request', class: 'btn btn-primary', data: { 'time-off-request-target': 'submitButton' }
+  .d-flex.gap-2
+    = form.submit 'Submit Request', class: 'btn btn-primary w-100', data: { 'time-off-request-target': 'submitButton' }
+    %button.btn.btn-secondary.w-100{type: "button", data: {action: "click->time-off-request#hideFormAndShowButton"}}
+      Cancel

@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["form", "list", "newButton", "errorContainer"];
+  static targets = ["form", "list", "errorContainer"];
   static values = {
     indexUrl: String,
     createUrl: String,
@@ -47,19 +47,18 @@ export default class extends Controller {
         if (response.status === 401 || response.status === 403) {
           this.handleAuthError();
           return;
+        } else {
+          this.handleErrors(
+            data.errors || ["An error occurred while processing your request."],
+          );
         }
-        this.handleErrors(
-          data.errors || ["An error occurred while processing your request."],
-        );
         return;
       }
 
       // On success, update the UI similar to how turbo_stream would
       await this.refreshTimeOffRequestsList();
       this.resetForm();
-      this.showNewRequestButton();
-
-      // Show success message
+      this.hideFormAndShowButton();
       this.showNotice("Time off request was successfully created.");
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -67,6 +66,21 @@ export default class extends Controller {
     }
   }
 
+  // New reusable function to hide the form and show the button
+  hideFormAndShowButton(event) {
+    if (event) event.preventDefault(); // Prevent default action if triggered by a button click
+
+    const newRequestFrame = document.getElementById("new_time_off_request");
+    if (newRequestFrame) {
+      newRequestFrame.innerHTML = `
+        <div class="d-grid gap-2 mb-4">
+          <a href="/time_off_requests/new" class="btn btn-primary" data-turbo-frame="new_time_off_request">Request Time Off</a>
+        </div>
+      `;
+    }
+  }
+
+  // ... (rest of the controller code remains the same) ...
   async refreshTimeOffRequestsList() {
     try {
       const response = await fetch(
@@ -148,22 +162,6 @@ export default class extends Controller {
     }
   }
 
-  showNewRequestButton() {
-    if (this.hasNewButtonTarget && this.hasFormTarget) {
-      // Replace the form with the "Request Time Off" button
-      const newRequestFrame = document.querySelector(
-        "turbo-frame#new_time_off_request",
-      );
-      if (newRequestFrame) {
-        newRequestFrame.innerHTML = `
-          <div class="d-grid gap-2 mb-4">
-            <a href="/time_off_requests/new" class="btn btn-primary" data-turbo-frame="new_time_off_request">Request Time Off</a>
-          </div>
-        `;
-      }
-    }
-  }
-
   handleErrors(errors) {
     if (!this.hasErrorContainerTarget) return;
 
@@ -182,12 +180,12 @@ export default class extends Controller {
     this.errorContainerTarget.appendChild(errorList);
   }
 
-  showNotice(message) {
+  showNotice(message, alertClass = "alert-info") {
     const noticeContainer = document.querySelector(".container.mt-4");
     if (!noticeContainer) return;
 
     const notice = document.createElement("div");
-    notice.className = "alert alert-info alert-dismissible fade show";
+    notice.className = `alert ${alertClass} alert-dismissible fade show`;
     notice.innerHTML = `
       ${message}
       <button class="btn-close" data-bs-dismiss="alert"></button>
@@ -220,25 +218,5 @@ export default class extends Controller {
     setTimeout(() => {
       window.location.href = "/users/sign_in";
     }, 2000);
-  }
-
-  showNotice(message, alertClass = "alert-info") {
-    const noticeContainer = document.querySelector(".container.mt-4");
-    if (!noticeContainer) return;
-
-    const notice = document.createElement("div");
-    notice.className = `alert ${alertClass} alert-dismissible fade show`;
-    notice.innerHTML = `
-      ${message}
-      <button class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-
-    // Insert at the top of the main container
-    noticeContainer.insertBefore(notice, noticeContainer.firstChild);
-
-    // Automatically remove after 5 seconds
-    setTimeout(() => {
-      notice.remove();
-    }, 5000);
   }
 }
