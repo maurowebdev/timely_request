@@ -160,9 +160,9 @@ RSpec.describe "Api::V1::TimeOffRequests", type: :request do
         }.not_to change(TimeOffRequest, :count)
       end
 
-      it "returns an :unprocessable_entity status" do
+      it "returns an :unprocessable_content status" do
         post "/api/v1/time_off_requests", params: invalid_params
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it "returns a descriptive error message" do
@@ -189,7 +189,7 @@ RSpec.describe "Api::V1::TimeOffRequests", type: :request do
       it "returns an error if the request is already approved" do
         employee_request.update(status: :approved)
         patch "/api/v1/time_off_requests/#{employee_request.id}/approve"
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
 
@@ -231,7 +231,7 @@ RSpec.describe "Api::V1::TimeOffRequests", type: :request do
       it "returns an error if the request is already denied" do
         employee_request.update(status: :rejected)
         patch "/api/v1/time_off_requests/#{employee_request.id}/deny"
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
 

@@ -39,7 +39,7 @@ class Api::V1::TimeOffRequestsController < Api::V1::BaseController
     if @time_off_request.save
       render json: TimeOffRequestSerializer.new(@time_off_request).serializable_hash, status: :created
     else
-      render json: { errors: @time_off_request.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @time_off_request.errors.full_messages }, status: :unprocessable_content
     end
   end
 
@@ -48,7 +48,7 @@ class Api::V1::TimeOffRequestsController < Api::V1::BaseController
     if @time_off_request.update(time_off_request_params)
       render json: TimeOffRequestSerializer.new(@time_off_request).serializable_hash
     else
-      render json: { errors: @time_off_request.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @time_off_request.errors.full_messages }, status: :unprocessable_content
     end
   end
 
@@ -58,14 +58,14 @@ class Api::V1::TimeOffRequestsController < Api::V1::BaseController
     result = TimeOffRequestDecisionService.new(
       time_off_request: @time_off_request,
       approver: current_user,
-      decision: 'approve',
+      decision: "approve",
       comments: params[:comments]
     ).call
 
     if result[:success]
       render json: TimeOffRequestSerializer.new(result[:time_off_request]).serializable_hash
     else
-      render json: { errors: [result[:error]] }, status: :unprocessable_entity
+      render json: { errors: [ result[:error] ] }, status: :unprocessable_content
     end
   end
 
@@ -75,14 +75,14 @@ class Api::V1::TimeOffRequestsController < Api::V1::BaseController
     result = TimeOffRequestDecisionService.new(
       time_off_request: @time_off_request,
       approver: current_user,
-      decision: 'deny',
+      decision: "deny",
       comments: params[:comments]
     ).call
 
     if result[:success]
       render json: TimeOffRequestSerializer.new(result[:time_off_request]).serializable_hash
     else
-      render json: { errors: [result[:error]] }, status: :unprocessable_entity
+      render json: { errors: [ result[:error] ] }, status: :unprocessable_content
     end
   end
 

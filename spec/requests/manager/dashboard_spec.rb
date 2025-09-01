@@ -25,11 +25,11 @@ RSpec.describe "Manager::Dashboard", type: :request do
       end
 
       it "shows the employee request" do
-        expect(response.body).to include(employee_request.user.name)
+        expect(response.body).to include(CGI.escapeHTML(employee_request.user.name))
       end
 
       it "doesn't show the unrelated request" do
-        expect(response.body).not_to include(unrelated_request.user.name)
+        expect(response.body).not_to include(CGI.escapeHTML(unrelated_request.user.name))
       end
     end
 

@@ -10,7 +10,8 @@ class MonthlyPtoAccrualJob < ApplicationJob
         entry_type: :accrual,
         amount: ACCRUAL_AMOUNT,
         effective_date: Date.current,
-        notes: "Monthly PTO accrual for #{Date.current.strftime('%B %Y')}"
+        notes: "Monthly PTO accrual for #{Date.current.strftime('%B %Y')}",
+        source: user
       )
     end
   end
