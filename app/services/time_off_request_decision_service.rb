@@ -111,7 +111,7 @@ class TimeOffRequestDecisionService
   private
 
   def create_time_off_ledger_entry!
-    return unless time_off_request.time_off_type.name.downcase == 'vacation'
+    return unless time_off_request.time_off_type.name.downcase == "vacation"
 
     TimeOffLedgerEntry.create!(
       user: time_off_request.user,

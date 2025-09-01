@@ -6,8 +6,14 @@ RSpec.describe "Manager::Dashboard", type: :request do
   let(:employee) { create(:user, :employee, manager: manager) }
   let(:unrelated_employee) { create(:user, :employee) }
 
-  let!(:employee_request) { create(:time_off_request, user: employee) }
-  let!(:unrelated_request) { create(:time_off_request, user: unrelated_employee) }
+  let!(:employee_request) {
+    create(:time_off_ledger_entry, user: employee, amount: 10, source: employee)
+    create(:time_off_request, :vacation, user: employee)
+  }
+  let!(:unrelated_request) {
+    create(:time_off_ledger_entry, user: unrelated_employee, amount: 10, source: unrelated_employee)
+    create(:time_off_request, :vacation, user: unrelated_employee)
+  }
 
   describe "GET /manager" do
     context "as a manager" do

@@ -40,9 +40,8 @@ RSpec.describe "TimeOffRequests", type: :request do
     end
 
     it "shows the user's time off requests" do
-      time_off_request = create(:time_off_request, :with_pto,
+      time_off_request = create(:time_off_request, :vacation, :with_pto,
                                user: user,
-                               time_off_type: time_off_type,
                                reason: "Annual vacation")
 
       get "/time_off_requests"

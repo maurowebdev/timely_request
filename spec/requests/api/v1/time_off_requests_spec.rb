@@ -10,7 +10,7 @@ RSpec.describe "Api::V1::TimeOffRequests", type: :request do
   let(:unrelated_employee) { create(:user, :employee, :with_pto, department: department) }
 
   # Create a time_off_type for testing
-  let(:time_off_type) { create(:time_off_type, name: "Vacation") }
+  let(:time_off_type) { TimeOffType.find_by(name: "Vacation") || create(:time_off_type, name: "Vacation") }
 
   # Helper method to grant PTO to a user
   def grant_pto(user, amount)
@@ -20,17 +20,17 @@ RSpec.describe "Api::V1::TimeOffRequests", type: :request do
   # Create time off requests for testing
   let!(:employee_request) do
     grant_pto(employee, 10)
-    create(:time_off_request, user: employee, time_off_type: time_off_type)
+    create(:time_off_request, :vacation, user: employee)
   end
 
   let!(:other_employee_request) do
     grant_pto(other_employee, 10)
-    create(:time_off_request, user: other_employee, time_off_type: time_off_type)
+    create(:time_off_request, :vacation, user: other_employee)
   end
 
   let!(:unrelated_request) do
     grant_pto(unrelated_employee, 10)
-    create(:time_off_request, user: unrelated_employee, time_off_type: time_off_type)
+    create(:time_off_request, :vacation, user: unrelated_employee)
   end
 
   describe "GET /api/v1/time_off_requests" do
@@ -113,8 +113,8 @@ RSpec.describe "Api::V1::TimeOffRequests", type: :request do
       {
         time_off_request: {
           time_off_type_id: time_off_type.id,
-          start_date: Date.today + 10.days,
-          end_date: Date.today + 12.days,
+          start_date: Date.today + 50.days,
+          end_date: Date.today + 53.days,
           reason: "Vacation"
         }
       }

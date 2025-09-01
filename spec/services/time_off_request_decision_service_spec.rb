@@ -10,7 +10,8 @@ RSpec.describe TimeOffRequestDecisionService, type: :service do
   let(:other_employee) { create(:user, :employee, department: department, manager: admin) }
   let(:time_off_type) { create(:time_off_type) }
   let(:time_off_request) do
-    create(:time_off_request, user: employee, time_off_type: time_off_type, status: :pending)
+    create(:time_off_ledger_entry, user: employee, amount: 10, source: employee)
+    create(:time_off_request, :vacation, user: employee, status: :pending)
   end
 
   describe '#call' do
@@ -134,7 +135,8 @@ RSpec.describe TimeOffRequestDecisionService, type: :service do
 
     context 'with already decided request' do
       let(:approved_request) do
-        create(:time_off_request, user: employee, time_off_type: time_off_type, status: :approved)
+        create(:time_off_ledger_entry, user: employee, amount: 10, source: employee)
+        create(:time_off_request, :vacation, user: employee, status: :approved)
       end
       let(:service) do
         described_class.new(
@@ -155,11 +157,12 @@ RSpec.describe TimeOffRequestDecisionService, type: :service do
     context 'with different decision formats' do
       it 'accepts various approval formats' do
         %w[approve approved].each_with_index do |decision, index|
-          request = create(:time_off_request,
+          create(:time_off_ledger_entry, user: employee, amount: 10, source: employee)
+          request = create(:time_off_request, :vacation,
                           user: employee,
                           status: :pending,
-                          start_date: Date.today + (index * 30).days,
-                          end_date: Date.today + (index * 30 + 3).days)
+                          start_date: Date.today + (index * 30 + 15).days,
+                          end_date: Date.today + (index * 30 + 18).days)
           service = described_class.new(
             time_off_request: request,
             approver: manager,
@@ -174,11 +177,12 @@ RSpec.describe TimeOffRequestDecisionService, type: :service do
 
       it 'accepts various denial formats' do
         %w[deny denied reject rejected].each_with_index do |decision, index|
-          request = create(:time_off_request,
+          create(:time_off_ledger_entry, user: employee, amount: 10, source: employee)
+          request = create(:time_off_request, :vacation,
                           user: employee,
                           status: :pending,
-                          start_date: Date.today + (index * 30 + 10).days,
-                          end_date: Date.today + (index * 30 + 13).days)
+                          start_date: Date.today + (index * 30 + 15).days,
+                          end_date: Date.today + (index * 30 + 18).days)
           service = described_class.new(
             time_off_request: request,
             approver: manager,

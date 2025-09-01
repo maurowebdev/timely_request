@@ -10,7 +10,8 @@ RSpec.describe 'TimeOffRequest Approval Integration', type: :request do
   let(:other_employee) { create(:user, :employee, department: department, manager: admin) }
   let(:time_off_type) { create(:time_off_type) }
   let(:time_off_request) do
-    create(:time_off_request, user: employee, time_off_type: time_off_type, status: :pending)
+    create(:time_off_ledger_entry, user: employee, amount: 10, source: employee)
+    create(:time_off_request, :vacation, user: employee, status: :pending)
   end
 
   # Helper to grant PTO to a user
@@ -79,7 +80,8 @@ RSpec.describe 'TimeOffRequest Approval Integration', type: :request do
 
     context 'when trying to approve already approved request' do
       let(:approved_request) do
-        create(:time_off_request, user: employee, time_off_type: time_off_type, status: :approved)
+        create(:time_off_ledger_entry, user: employee, amount: 10, source: employee)
+        create(:time_off_request, :vacation, user: employee, status: :approved)
       end
 
       before do

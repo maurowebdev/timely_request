@@ -12,9 +12,8 @@ RSpec.describe "Manager Dashboard", type: :system do
   end
 
   let!(:pending_request) {
-    create(:time_off_request, :with_pto,
+    create(:time_off_request, :vacation, :with_pto,
       user: employee,
-      time_off_type: time_off_type,
       status: :pending,
       reason: "Family vacation"
     )

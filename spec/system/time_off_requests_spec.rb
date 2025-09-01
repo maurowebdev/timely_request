@@ -23,8 +23,8 @@ RSpec.describe "TimeOffRequests", type: :system do
       expect(page).to have_content("New Time Off Request")
 
       select "Vacation", from: "time_off_request[time_off_type_id]"
-      fill_in "time_off_request[start_date]", with: Date.today + 1.day
-      fill_in "time_off_request[end_date]", with: Date.today + 5.days
+      fill_in "time_off_request[start_date]", with: Date.today + 15.days
+      fill_in "time_off_request[end_date]", with: Date.today + 18.days
       fill_in "time_off_request[reason]", with: "Taking a break"
 
       # The Stimulus controller will intercept this submission and make an API call
@@ -53,7 +53,7 @@ RSpec.describe "TimeOffRequests", type: :system do
 
   describe "Time off request list" do
     let!(:time_off_request) do
-      create(:time_off_request, :with_pto, user: user, time_off_type: time_off_type)
+      create(:time_off_request, :vacation, :with_pto, user: user)
     end
 
     it "displays the user's time off requests" do
