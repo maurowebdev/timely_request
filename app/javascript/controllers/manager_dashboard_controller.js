@@ -285,17 +285,7 @@ export default class extends Controller {
   }
 
   handleAuthError() {
-    console.error("Authentication error. You may need to log in again.");
-
-    this.showNotice(
-      "Your session has expired. Please log in again.",
-      "alert-danger",
-    );
-
-    // Redirect to login page after a short delay
-    setTimeout(() => {
-      window.location.href = "/users/sign_in";
-    }, 2000);
+    this.showNotice("You are not authorized for this action.", "alert-danger");
   }
 
   showNotice(message, alertClass = "alert-info") {
